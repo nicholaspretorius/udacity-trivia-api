@@ -1,7 +1,9 @@
 .vscode
+.env
 __pycache__
 venv
 env
+*.code-workspace
 
 # OS generated files #
 ######################
