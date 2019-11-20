@@ -85,11 +85,17 @@ def create_app(test_config=None):
         formatted_questions = [question.format() for question in questions]
         return formatted_questions
 
-    @app.route('/questions')
+    @app.route('/questions', methods=['GET'])
     def retrieve_questions_handler():
         try:
             questions = retrieve_and_format_questions()
-            paged_questions = paginate_questions(request, questions)
+            page = request.args.get('page')
+
+            if page:
+                paged_questions = paginate_questions(request, questions)
+            else:
+                paged_questions = questions
+
             categories = retrieve_categories()
 
             return jsonify({
@@ -144,29 +150,46 @@ def create_app(test_config=None):
     '''
     @app.route('/questions', methods=['POST'])
     def create_question():
-        body = request.get_json()
-        print('JSON: ', body)
-
-        question = body.get('question', None)
-        answer = body.get('answer', None)
-        category = body.get('category', None)
-        difficulty = body.get('difficulty', None)
-
         try:
-            new_question = Question(
-                question=question, answer=answer, category=category,
-                difficulty=difficulty)
-            new_question.insert()
+            body = request.get_json()
+            search_term = body.get('search', None)
 
-            total_questions = retrieve_and_format_questions()
-            paged_questions = paginate_questions(request, total_questions)
+            # question search
+            if search_term is not None:
+                print('Search for term!')
+                search = "%{}%".format(search_term.lower())
+                search_results = Question.query.filter(
+                    Question.question.ilike(search)).all()
+                formatted_search_results = [
+                    question.format() for question in search_results]
+                paginated_results = paginate_questions(
+                    request, formatted_search_results)
 
-            return jsonify({
-                'success': True,
-                'created': new_question.id,
-                'questions': paged_questions,
-                'total_questions': len(total_questions)
-            })
+                return jsonify({
+                    'success': True,
+                    'questions': paginated_results,
+                    'total_questions': len(search_results)
+                })
+            # question add
+            else:
+                question = body.get('question', None)
+                answer = body.get('answer', None)
+                category = body.get('category', None)
+                difficulty = body.get('difficulty', None)
+                new_question = Question(
+                    question=question, answer=answer, category=category,
+                    difficulty=difficulty)
+                new_question.insert()
+
+                total_questions = retrieve_and_format_questions()
+                paged_questions = paginate_questions(request, total_questions)
+
+                return jsonify({
+                    'success': True,
+                    'created': new_question.id,
+                    'questions': paged_questions,
+                    'total_questions': len(total_questions)
+                })
 
         except():
             abort(422)
