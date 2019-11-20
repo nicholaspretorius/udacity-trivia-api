@@ -53,6 +53,21 @@ def create_app(test_config=None):
         except():
             return abort(500)
 
+    @app.route('/categories/<int:category_id>')
+    def retrieve_category_handler(category_id):
+        try:
+            category = Category.query.get(category_id)
+
+            if category is None:
+                abort(404)
+
+            return jsonify({
+                'id': category.id,
+                'type': category.type
+            })
+        except():
+            abort(500)
+
     '''
     @TODO:
     Create an endpoint to handle GET requests for questions,
@@ -95,6 +110,27 @@ def create_app(test_config=None):
     be removed. This removal will persist in the database and when you refresh
     the page.
     '''
+    @app.route('/questions/<int:question_id>', methods=['DELETE'])
+    def delete_question(question_id):
+        try:
+            question = Question.query.get(question_id)
+
+            if question is None:
+                abort(404)
+
+            question.delete()
+            questions = retrieve_and_format_questions()
+            paged_questions = paginate_questions(request, questions)
+
+            return jsonify({
+                'success': True,
+                'deleted': question.id,
+                'questions': paged_questions,
+                'total_questions': len(questions)
+            })
+
+        except():
+            abort(422)
 
     '''
     @TODO:
