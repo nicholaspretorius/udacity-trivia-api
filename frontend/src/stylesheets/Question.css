@@ -33,6 +33,10 @@
   justify-content: space-between;
 }
 
+.Question-status img.category {
+  cursor: default;
+}
+
 .Question {
   font-size: 21px;
   width: 100%;
@@ -72,4 +76,5 @@ img.category {
 
 img.delete {
   width: 20px;
+  cursor: pointer;
 }
