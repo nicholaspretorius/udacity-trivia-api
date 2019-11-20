@@ -265,8 +265,10 @@ def create_app(test_config=None):
             if quiz_category_id == 0:
                 questions = Question.query.order_by(func.random()).all()
             else:
-                questions = Question.query.filter(
-                    Question.category == quiz_category_id).order_by(func.random()).all()
+                questions = Question.query.\
+                    filter(
+                        Question.category == quiz_category_id).\
+                    order_by(func.random()).all()
 
             formatted_questions = [question.format() for question in questions]
             available_questions = []
