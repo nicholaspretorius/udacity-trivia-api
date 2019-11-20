@@ -47,6 +47,40 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        if data['count'] == 0:
+            self.assertFalse(data['categories'])
+            self.assertFalse(data['count'])
+        else:
+            self.assertTrue(data['categories'])
+            self.assertTrue(data['count'])
+
+    def test_get_questions(self):
+        res = self.client().get('/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        if data['count'] == 0:
+            self.assertFalse(data['questions'])
+            self.assertFalse(data['count'])
+        else:
+            self.assertTrue(data['questions'])
+            self.assertTrue(data['count'])
+
+    def test_get_category(self):
+        res = self.client().get('/categories/1')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(data['success'], True)
+
+    # def test_get_categories_no_categories(self):
+    #     res = self.client().get('/categories')
+    #     data = json.loads(res.data)
+
+    #     self.assertEqual(res.status_code, 200)
+    #     self.assertEqual(data['success'], False)
 
 
 # Make the tests conveniently executable
