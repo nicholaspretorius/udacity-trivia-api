@@ -89,7 +89,7 @@ class QuestionView extends Component {
       type: "POST",
       dataType: "json",
       contentType: "application/json",
-      data: JSON.stringify({ searchTerm: searchTerm }),
+      data: JSON.stringify({ search: searchTerm }),
       xhrFields: {
         withCredentials: true
       },
@@ -147,7 +147,11 @@ class QuestionView extends Component {
                 }}
               >
                 {this.state.categories[id].type}
-                <img className="category" src={`${this.state.categories[id]}.svg`} />
+                <img
+                  className="category"
+                  src={`${this.state.categories[id].type}.svg`}
+                  alt={this.state.categories[id].type}
+                />
               </li>
             ))}
           </ul>
