@@ -2,6 +2,7 @@ import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from sqlalchemy import func
 import random
 
 from models import setup_db, Question, Category
@@ -261,8 +262,12 @@ def create_app(test_config=None):
             quiz_category_id = body.get('quiz_category')['id']
             previous_questions = body.get('previous_questions', None)
 
-            questions = Question.query.filter(
-                Question.category == quiz_category_id).all()
+            if quiz_category_id == 0:
+                questions = Question.query.order_by(func.random()).all()
+            else:
+                questions = Question.query.filter(
+                    Question.category == quiz_category_id).order_by(func.random()).all()
+
             formatted_questions = [question.format() for question in questions]
             available_questions = []
             for q in formatted_questions:
