@@ -9,12 +9,11 @@ from models import setup_db, Question, Category
 QUESTIONS_PER_PAGE = 10
 
 
-def paginate_questions(request, selection):
+def paginate_questions(request, questions):
     page = request.args.get('page', 1, type=int)
     start = (page - 1) * QUESTIONS_PER_PAGE
     end = start + QUESTIONS_PER_PAGE
 
-    questions = [question.format() for question in selection]
     current_questions = questions[start:end]
     return current_questions
 
@@ -36,17 +35,20 @@ def create_app(test_config=None):
     Create an endpoint to handle GET requests
     for all available categories.
     '''
-    @app.route('/categories')
     def retrieve_categories():
+        categories = Category.query.order_by('id').all()
+        formatted_categories = [category.format() for category in categories]
+        return formatted_categories
+
+    @app.route('/categories')
+    def retrieve_categories_handler():
         try:
-            categories = Category.query.order_by('id').all()
-            formatted_categories = [category.format()
-                                    for category in categories]
+            categories = retrieve_categories()
 
             return jsonify({
                 'success': True,
-                'categories': formatted_categories,
-                'count': len(formatted_categories)
+                'categories': categories,
+                'total': len(categories),
             })
         except():
             return abort(500)
@@ -63,16 +65,24 @@ def create_app(test_config=None):
     ten questions per page and pagination at the bottom of the screen for
     three pages. Clicking on the page numbers should update the questions.
     '''
+    def retrieve_and_format_questions():
+        questions = Question.query.order_by('id').all()
+        formatted_questions = [question.format() for question in questions]
+        return formatted_questions
+
     @app.route('/questions')
-    def retrieve_questions():
+    def retrieve_questions_handler():
         try:
-            questions = Question.query.order_by('id').all()
+            questions = retrieve_and_format_questions()
             paged_questions = paginate_questions(request, questions)
+            categories = retrieve_categories()
 
             return jsonify({
                 'success': True,
                 'questions': paged_questions,
-                'count': len(questions)
+                'total_questions': len(questions),
+                'current_category': None,
+                'categories': categories
             })
         except():
             return abort(500)
@@ -96,6 +106,34 @@ def create_app(test_config=None):
     the form will clear and the question will appear at the end of the last
     page of the questions list in the "List" tab.
     '''
+    @app.route('/questions', methods=['POST'])
+    def create_question():
+        body = request.get_json()
+        print('JSON: ', body)
+
+        question = body.get('question', None)
+        answer = body.get('answer', None)
+        category = body.get('category', None)
+        difficulty = body.get('difficulty', None)
+
+        try:
+            new_question = Question(
+                question=question, answer=answer, category=category,
+                difficulty=difficulty)
+            new_question.insert()
+
+            total_questions = retrieve_and_format_questions()
+            paged_questions = paginate_questions(request, total_questions)
+
+            return jsonify({
+                'success': True,
+                'created': new_question.id,
+                'questions': paged_questions,
+                'total_questions': len(total_questions)
+            })
+
+        except():
+            abort(422)
 
     '''
     @TODO:
