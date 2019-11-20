@@ -4,6 +4,7 @@ __pycache__
 venv
 env
 *.code-workspace
+/frontend/node_modules
 
 # OS generated files #
 ######################
