@@ -220,6 +220,9 @@ def create_app(test_config=None):
             questions = Question.query.filter(
                 Question.category == category_id).all()
 
+            if category_id < 1:
+                abort(404)
+
             if questions is None:
                 total_questions = 0
                 paginated_questions = []
@@ -250,6 +253,39 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not.
     '''
+    @app.route('/quizzes', methods=['POST'])
+    def play_quiz():
+        try:
+            body = request.get_json()
+            print("Body: ", body)
+            quiz_category_id = body.get('quiz_category')['id']
+            previous_questions = body.get('previous_questions', None)
+
+            questions = Question.query.filter(
+                Question.category == quiz_category_id).all()
+            formatted_questions = [question.format() for question in questions]
+            available_questions = []
+            for q in formatted_questions:
+                print("Q: ", q)
+                if len(previous_questions) == 0:
+                    available_questions.append(q)
+                elif len(previous_questions) >= 0:
+                    found = q['id'] not in previous_questions
+                    if found is True:
+                        available_questions.append(q)
+
+            # print('Available: ', next_question)
+            # print('Previous: ', previous_questions)
+            if len(available_questions) > 0:
+                return jsonify({
+                    'question': available_questions[0]
+                })
+            else:
+                return jsonify({
+                    'question': None
+                })
+        except():
+            abort(422)
 
     '''
     @TODO:
