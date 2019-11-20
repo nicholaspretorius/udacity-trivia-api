@@ -52,7 +52,7 @@ def create_app(test_config=None):
                 'total': len(categories),
             })
         except():
-            return abort(500)
+            abort(500)
 
     @app.route('/categories/<int:category_id>')
     def retrieve_category_handler(category_id):
@@ -63,6 +63,7 @@ def create_app(test_config=None):
                 abort(404)
 
             return jsonify({
+                'success': True,
                 'id': category.id,
                 'type': category.type
             })
@@ -217,9 +218,8 @@ def create_app(test_config=None):
     @app.route('/categories/<int:category_id>/questions')
     def get_category_questions(category_id):
         try:
-
             questions = Question.query.filter(
-                Question.category == category_id).all()
+                Question.category == str(category_id)).all()
 
             if category_id < 1:
                 abort(404)
@@ -236,7 +236,8 @@ def create_app(test_config=None):
                 'success': True,
                 'questions': paginated_questions,
                 'total_questions': len(total_questions),
-                'current_category': Category.query.get(category_id).format(),
+                'current_category': Category.query.get(str(category_id)).
+                format(),
                 'categories': retrieve_categories()
             })
 
