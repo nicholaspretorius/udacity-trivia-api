@@ -25,6 +25,13 @@ class TriviaTestCase(unittest.TestCase):
             f'{DB_USER}:{DB_PASSWORD}@localhost:{DB_PORT}', self.database_name)
         setup_db(self.app, self.database_path)
 
+        self.new_question = {
+            'question': 'Question?',
+            'answer': 'Answer',
+            'category': 5,
+            'difficulty': 1
+        }
+
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
@@ -48,12 +55,12 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        if data['count'] == 0:
+        if data['total'] == 0:
             self.assertFalse(data['categories'])
-            self.assertFalse(data['count'])
+            self.assertFalse(data['total'])
         else:
             self.assertTrue(data['categories'])
-            self.assertTrue(data['count'])
+            self.assertTrue(data['total'])
 
     def test_get_questions(self):
         res = self.client().get('/questions')
@@ -61,18 +68,44 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        if data['count'] == 0:
+        if data['total_questions'] == 0:
             self.assertFalse(data['questions'])
-            self.assertFalse(data['count'])
+            self.assertFalse(data['total_questions'])
         else:
             self.assertTrue(data['questions'])
-            self.assertTrue(data['count'])
+            self.assertTrue(data['total_questions'])
 
     def test_get_category(self):
         res = self.client().get('/categories/1')
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 201)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+
+    # not sure about this...
+    def test_get_category_questions(self):
+        res = self.client().get('/categories/2/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(len(data['questions']), 4)
+        self.assertEqual(data['total_questions'], 4)
+
+    def test_create_new_question(self):
+        res = self.client().post('/questions', json=self.new_question)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+
+    def test_delete_question(self):
+        res = self.client().delete('/questions/27')
+        data = json.loads(res.data)
+
+        question = Question.query.filter(Question.id == 27).one_or_none()
+
+        self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
 
     # def test_get_categories_no_categories(self):
