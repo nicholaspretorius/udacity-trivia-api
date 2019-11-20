@@ -143,7 +143,7 @@ class QuestionView extends Component {
               <li
                 key={id}
                 onClick={() => {
-                  this.getByCategory(id);
+                  this.getByCategory(this.state.categories[id].id);
                 }}
               >
                 {this.state.categories[id].type}
