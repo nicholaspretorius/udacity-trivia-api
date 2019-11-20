@@ -9,6 +9,16 @@ from models import setup_db, Question, Category
 QUESTIONS_PER_PAGE = 10
 
 
+def paginate_questions(request, selection):
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
+
+    questions = [question.format() for question in selection]
+    current_questions = questions[start:end]
+    return current_questions
+
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
@@ -28,17 +38,18 @@ def create_app(test_config=None):
     '''
     @app.route('/categories')
     def retrieve_categories():
-        categories = Category.query.order_by('id').all()
-        formatted_categories = [category.format() for category in categories]
+        try:
+            categories = Category.query.order_by('id').all()
+            formatted_categories = [category.format()
+                                    for category in categories]
 
-        if len(categories) == 0:
-            abort(404)
-
-        return jsonify({
-            'success': True,
-            'categories': formatted_categories,
-            'count': len(formatted_categories)
-        })
+            return jsonify({
+                'success': True,
+                'categories': formatted_categories,
+                'count': len(formatted_categories)
+            })
+        except():
+            return abort(500)
 
     '''
     @TODO:
@@ -52,6 +63,19 @@ def create_app(test_config=None):
     ten questions per page and pagination at the bottom of the screen for
     three pages. Clicking on the page numbers should update the questions.
     '''
+    @app.route('/questions')
+    def retrieve_questions():
+        try:
+            questions = Question.query.order_by('id').all()
+            paged_questions = paginate_questions(request, questions)
+
+            return jsonify({
+                'success': True,
+                'questions': paged_questions,
+                'count': len(questions)
+            })
+        except():
+            return abort(500)
 
     '''
     @TODO:
@@ -117,5 +141,13 @@ def create_app(test_config=None):
             "error": 404,
             "message": "resource not found"
         }), 404
+
+    @app.errorhandler(500)
+    def not_found(error):
+        return jsonify({
+            "success": False,
+            "error": 500,
+            "message": "internal server error"
+        }), 500
 
     return app
