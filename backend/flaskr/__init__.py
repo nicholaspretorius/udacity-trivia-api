@@ -156,6 +156,9 @@ def create_app(test_config=None):
             body = request.get_json()
             search_term = body.get('search', None)
 
+            if body == {}:
+                abort(422)
+
             # question search
             if search_term is not None:
                 search = "%{}%".format(search_term.lower())
@@ -177,6 +180,10 @@ def create_app(test_config=None):
                 answer = body.get('answer', None)
                 category = body.get('category', None)
                 difficulty = body.get('difficulty', None)
+
+                if question is None or answer is None or category is None or difficulty is None:
+                    abort(422)
+
                 new_question = Question(
                     question=question, answer=answer, category=category,
                     difficulty=difficulty)
@@ -220,7 +227,9 @@ def create_app(test_config=None):
             questions = Question.query.filter(
                 Question.category == str(category_id)).all()
 
-            if category_id < 1:
+            category = Category.query.get(str(category_id))
+
+            if category_id < 1 or category is None:
                 abort(404)
 
             if questions is None:
@@ -258,7 +267,11 @@ def create_app(test_config=None):
     def play_quiz():
         try:
             body = request.get_json()
-            quiz_category_id = body.get('quiz_category')['id']
+
+            if body.get('quiz_category') is None or body.get('previous_questions') is None:
+                abort(422)
+
+            quiz_category_id = body.get('quiz_category', None)['id']
             previous_questions = body.get('previous_questions', None)
 
             if quiz_category_id == 0:
@@ -297,6 +310,14 @@ def create_app(test_config=None):
     Create error handlers for all expected errors
     including 404 and 422.
     '''
+    @app.errorhandler(400)
+    def not_found(error):
+        return jsonify({
+            "success": False,
+            "error": 400,
+            "message": "bad request"
+        }), 400
+
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({
