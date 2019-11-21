@@ -58,6 +58,14 @@ class TriviaTestCase(unittest.TestCase):
     expected errors.
     """
 
+    def test_ping(self):
+        res = self.client().get('/')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['ping'], 'pong')
+
     def test_get_categories(self):
         res = self.client().get('/categories')
         data = json.loads(res.data)
@@ -99,6 +107,23 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertEqual(len(data['questions']), 0)
+
+    def test_get_question(self):
+        res = self.client().get('/questions/2')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['question'])
+
+    def test_get_question_not_found(self):
+        res = self.client().get('/questions/999')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['error'], 404)
+        self.assertTrue(data['message'])
 
     def test_get_category(self):
         res = self.client().get('/categories/1')
