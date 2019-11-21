@@ -31,6 +31,13 @@ def create_app(test_config=None):
         response.headers.add('Access-Control-Allow-Methods',
                              'GET, POST, PATCH, DELETE, OPTIONS')
         return response
+
+    @app.route('/')
+    def hello_world():
+        return jsonify({
+            'success': True,
+            'ping': 'pong'
+        })
     '''
     @TODO:
     Create an endpoint to handle GET requests
@@ -201,6 +208,23 @@ def create_app(test_config=None):
 
         except():
             abort(422)
+
+    @app.route('/questions/<int:question_id>')
+    def get_question(question_id):
+        try:
+            question = Question.query.get(question_id)
+
+            if question is None:
+                abort(404)
+
+            formatted_question = question.format()
+
+            return jsonify({
+                'success': True,
+                'question': formatted_question
+            })
+        except():
+            abort(404)
 
     '''
     @TODO:
