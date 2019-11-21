@@ -158,7 +158,6 @@ def create_app(test_config=None):
 
             # question search
             if search_term is not None:
-                print('Search for term!')
                 search = "%{}%".format(search_term.lower())
                 search_results = Question.query.filter(
                     Question.question.ilike(search)).all()
@@ -215,7 +214,7 @@ def create_app(test_config=None):
     categories in the left column will cause only questions of that
     category to be shown.
     '''
-    @app.route('/categories/<int:category_id>/questions')
+    @app.route('/categories/<int:category_id>/questions', methods=['GET'])
     def get_category_questions(category_id):
         try:
             questions = Question.query.filter(
@@ -259,7 +258,6 @@ def create_app(test_config=None):
     def play_quiz():
         try:
             body = request.get_json()
-            print("Body: ", body)
             quiz_category_id = body.get('quiz_category')['id']
             previous_questions = body.get('previous_questions', None)
 
@@ -274,7 +272,6 @@ def create_app(test_config=None):
             formatted_questions = [question.format() for question in questions]
             available_questions = []
             for q in formatted_questions:
-                print("Q: ", q)
                 if len(previous_questions) == 0:
                     available_questions.append(q)
                 elif len(previous_questions) >= 0:
@@ -282,14 +279,14 @@ def create_app(test_config=None):
                     if found is True:
                         available_questions.append(q)
 
-            # print('Available: ', next_question)
-            # print('Previous: ', previous_questions)
             if len(available_questions) > 0:
                 return jsonify({
+                    'success': True,
                     'question': available_questions[0]
                 })
             else:
                 return jsonify({
+                    'success': True,
                     'question': None
                 })
         except():
