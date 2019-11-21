@@ -55,6 +55,12 @@ To run the tests, do the following from the /backend folder:
 
 If you are running the tests for the first time, you can omit the `dropdb command`.
 
+#### Seed the Database
+
+To seed the database with initial categories and questions, run the following: `psql trivia < trivia.psql`
+
+Note: You should already have created the 'trivia' database before doing this.
+
 #### Frontend
 
 Change into the /frontend folder. 
@@ -92,9 +98,9 @@ The API currently incporporates the following error types:
 * 422: Not Processable
 * 500: Internal Server Error
 
-#### Endpoints
+### Endpoints
 
-##### All
+#### All
 
 * GET /
 * GET /categories
@@ -108,9 +114,9 @@ The API currently incporporates the following error types:
 * POST /quizzes
 * DELETE /questions/:id
 
-##### GET /
+#### GET /
 
-###### General
+##### General
 
 * A sanity check/ping route to check whether the API is running.
 * Sample: curl http://localhost:5000/
@@ -125,9 +131,9 @@ The API currently incporporates the following error types:
 }
 ```
 
-##### GET /categories
+#### GET /categories
 
-###### General
+##### General
 
 * Returns a list of all categories.
 * Sample: curl http://localhost:5000/categories
@@ -167,9 +173,9 @@ The API currently incporporates the following error types:
 }
 ```
 
-##### GET /categories/:id
+#### GET /categories/:id
 
-###### General
+##### General
 
 * Retrieve a specific category.
 * Sample: curl http://localhost:5000/category/2
@@ -184,9 +190,9 @@ The API currently incporporates the following error types:
 }
 ```
 
-##### GET /categories/:id/questions
+#### GET /categories/:id/questions
 
-###### General
+##### General
 
 * Retrieves all questions for a specific category.
 * Sample: curl http://localhost:5000/categories/2/questions
@@ -260,9 +266,9 @@ The API currently incporporates the following error types:
 }
 ```
 
-##### GET /questions
+#### GET /questions
 
-###### General
+##### General
 
 * Retrieves all questions with optional ?page=int query parameter.
 * Sample: curl http://localhost:5000/questions?page=2
@@ -375,9 +381,9 @@ The API currently incporporates the following error types:
 }
 ```
 
-##### GET /questions/:id
+#### GET /questions/:id
 
-###### General
+##### General
 
 * Retrieves a specific question.
 * Sample: curl http://localhost:5000/questions/2
@@ -397,9 +403,9 @@ The API currently incporporates the following error types:
 }
 ```
 
-##### Create Question: POST /questions 
+#### Create Question: POST /questions 
 
-###### General
+##### General
 
 * Create a new question.
 * Body: 
@@ -494,9 +500,9 @@ The API currently incporporates the following error types:
 }
 ```
 
-##### Search for Question(s): POST /questions 
+#### Search for Question(s): POST /questions 
 
-###### General
+##### General
 
 * Search for question(s).
 * Body: 
@@ -531,9 +537,9 @@ The API currently incporporates the following error types:
 }
 ```
 
-##### POST /quizzes
+#### POST /quizzes
 
-###### General
+##### General
 
 * Play the trivia game.
 * Body: 
@@ -561,9 +567,9 @@ The API currently incporporates the following error types:
 }
 ```
 
-##### DELETE /questions/:id
+#### DELETE /questions/:id
 
-###### General
+##### General
 
 * Delete a specific question.
 * HTTP Code: 200
