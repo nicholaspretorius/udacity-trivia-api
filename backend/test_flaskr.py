@@ -2,6 +2,7 @@ import os
 import unittest
 import json
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from dotenv import load_dotenv
 
 from flaskr import create_app
@@ -30,6 +31,18 @@ class TriviaTestCase(unittest.TestCase):
             'answer': 'Answer',
             'category': 5,
             'difficulty': 1
+        }
+
+        self.search_term = {
+            'search': 'title'
+        }
+
+        self.quiz = {
+            'previous_questions': [],
+            'quiz_category': {
+                'type': 'Science',
+                'id': 1,
+            }
         }
 
         # binds the app to the current context
@@ -99,23 +112,40 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
 
-    def test_delete_question(self):
-        res = self.client().delete('/questions/27')
+    def test_search_for_questions(self):
+        res = self.client().post('/questions', json=self.search_term)
         data = json.loads(res.data)
-
-        question = Question.query.filter(Question.id == 27).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
 
-    # def test_get_categories_no_categories(self):
-    #     res = self.client().get('/categories')
-    #     data = json.loads(res.data)
+    def test_delete_question(self):
+        last = Question.query.order_by(Question.id.desc()).first()
+        res = self.client().delete(f'/questions/{last.id}')
+        data = json.loads(res.data)
 
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertEqual(data['success'], False)
+        question = Question.query.filter(
+            Question.id == last.id).one_or_none()
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+
+    def test_post_quizzes(self):
+
+        res = self.client().post('/quizzes', json=self.quiz)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+
+        # def test_get_categories_no_categories(self):
+        #     res = self.client().get('/categories')
+        #     data = json.loads(res.data)
+
+        #     self.assertEqual(res.status_code, 200)
+        #     self.assertEqual(data['success'], False)
 
 
-# Make the tests conveniently executable
+        # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
