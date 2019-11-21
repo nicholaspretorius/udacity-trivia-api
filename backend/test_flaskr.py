@@ -88,6 +88,7 @@ class TriviaTestCase(unittest.TestCase):
             self.assertFalse(data['questions'])
             self.assertFalse(data['total_questions'])
         else:
+            self.assertTrue(data['categories'])
             self.assertTrue(data['questions'])
             self.assertTrue(data['total_questions'])
 
@@ -105,6 +106,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
+        self.assertTrue(data['type'])
 
     def test_get_category_not_found(self):
         res = self.client().get('/categories/999')
@@ -112,6 +114,8 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
+        self.assertEqual(data['error'], 404)
+        self.assertTrue(data['message'])
 
     # not sure about this...
     def test_get_category_questions(self):
@@ -129,6 +133,8 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
+        self.assertEqual(data['error'], 404)
+        self.assertTrue(data['message'])
 
     def test_create_new_question(self):
         res = self.client().post('/questions', json=self.new_question)
@@ -136,6 +142,7 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
+        self.assertTrue(data['created'])
 
     def test_create_new_question_incorrect(self):
         res = self.client().post('/questions', json={'question': 'Test'})
@@ -143,6 +150,8 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
+        self.assertEqual(data['error'], 422)
+        self.assertTrue(data['message'])
 
     def test_search_for_questions(self):
         res = self.client().post('/questions', json={'search': 'title'})
@@ -179,6 +188,8 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], False)
+        self.assertEqual(data['error'], 404)
+        self.assertTrue(data['message'])
 
     def test_post_quizzes(self):
         res = self.client().post('/quizzes', json=self.quiz)
@@ -186,6 +197,11 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
+        self.assertTrue(data['question'])
+        self.assertTrue(data['question']['question'])
+        self.assertTrue(data['question']['answer'])
+        self.assertTrue(data['question']['difficulty'])
+        self.assertTrue(data['question']['category'])
 
     def test_post_quizzes_incorrect(self):
         res = self.client().post('/quizzes', json={})
@@ -193,6 +209,8 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
+        self.assertEqual(data['error'], 422)
+        self.assertTrue(data['message'])
 
         # Make the tests conveniently executable
 
