@@ -266,7 +266,7 @@ def create_app(test_config=None):
             abort(422)
 
     @app.errorhandler(400)
-    def not_found(error):
+    def bad_request(error):
         return jsonify({
             "success": False,
             "error": 400,
@@ -282,7 +282,7 @@ def create_app(test_config=None):
         }), 404
 
     @app.errorhandler(422)
-    def not_found(error):
+    def not_processable(error):
         return jsonify({
             "success": False,
             "error": 422,
@@ -290,7 +290,7 @@ def create_app(test_config=None):
         }), 422
 
     @app.errorhandler(500)
-    def not_found(error):
+    def internl_server_error(error):
         return jsonify({
             "success": False,
             "error": 500,
