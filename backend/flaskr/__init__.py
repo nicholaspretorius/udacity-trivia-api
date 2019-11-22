@@ -170,7 +170,7 @@ def create_app(test_config=None):
                     'created': new_question.id,
                     'questions': paged_questions,
                     'total_questions': len(total_questions)
-                })
+                }), 201
 
         except():
             abort(422)
